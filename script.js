@@ -53,7 +53,8 @@ async function send() {
 
     try {
         const res = await fetch(
-            `https://student-dropout-backend-upql.onrender.com/chat?session_id=${session_id}&msg=${encodeURIComponent(msg)}`
+            "https://student-dropout-backend-upql.onrender.com/chat" +
+            `?session_id=${session_id}&msg=${encodeURIComponent(msg)}`
         );
 
         const data = await res.json();
