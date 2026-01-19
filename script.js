@@ -48,11 +48,15 @@ async function send() {
     const typingMsg = addMessage("Agent is typing", "bot", true);
 
     try {
-        const BACKEND_URL = "https://student-dropout-backend-upql.onrender.com";
-
         const res = await fetch(
-            `${BACKEND_URL}/chat?session_id=${session_id}&msg=${msg}`
+            "https://student-dropout-backend-upql.onrender.com/chat" +
+            `?session_id=${session_id}&msg=${encodeURIComponent(msg)}`
         );
+
+        // 🔴 THIS LINE MUST EXIST
+        const data = await res.json();
+
+
 
 
         typingMsg.remove();
