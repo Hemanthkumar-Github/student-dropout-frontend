@@ -49,7 +49,7 @@ async function send() {
 
     try {
         const res = await fetch(
-            `https://student-dropout-backend-upql.onrender.com//chat?session_id=${session_id}&msg=${msg}`
+            `https://student-dropout-backend-upql.onrender.com/chat?session_id=${session_id}&msg=${msg}`
         );
 
 
