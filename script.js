@@ -17,13 +17,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-function addMessage(text, sender, typing=false) {
+function addMessage(text, sender, typing = false) {
     const chatBox = document.getElementById("chat-box");
     const msg = document.createElement("div");
+
     msg.className = sender;
     msg.innerText = text;
 
-    if (typing && sender === "bot") msg.classList.add("typing");
+    if (typing && sender === "bot") {
+        msg.classList.add("typing");
+    }
 
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -33,9 +36,10 @@ function addMessage(text, sender, typing=false) {
 async function send() {
     const input = document.getElementById("input");
     const msg = input.value.trim();
+
     if (!msg) return;
 
-    // Full refresh if previous session ended
+    // If previous session ended, refresh completely
     if (sessionDone) {
         location.reload();
         return;
@@ -44,31 +48,37 @@ async function send() {
     addMessage("You: " + msg, "user");
     input.value = "";
 
-    // Typing animation
-    const typingMsg = addMessage("Agent is typing", "bot", true);
+    // Show typing animation
+    const typingMsg = addMessage("Agent is typing...", "bot", true);
 
     try {
         const res = await fetch(
-          `https://student-dropout-backend-upql.onrender.com/chat?session_id=${session_id}&msg=${msg}`
-    );
+            `https://student-dropout-backend-upql.onrender.com/chat?session_id=${session_id}&msg=${encodeURIComponent(msg)}`
+        );
 
+        const data = await res.json();
 
-
+        // Remove typing animation
         typingMsg.remove();
 
         if (data.question) {
             addMessage("Agent: " + data.question, "bot");
-        } else {
+        } 
+        else if (data.prediction) {
             addMessage(
-                "Agent: " + data.prediction + " | " + data.dropout_probability,
+                "Agent: " + data.prediction + " | Dropout Probability: " + data.dropout_probability,
                 "bot"
             );
             sessionDone = true;
             addMessage(
-              "Session ended. Type anything to start a new chat.",
-              "bot"
+                "Session ended. Type anything to start a new chat.",
+                "bot"
             );
+        } 
+        else {
+            addMessage("Agent: Unexpected response from server.", "bot");
         }
+
     } catch (error) {
         console.error(error);
         typingMsg.remove();
