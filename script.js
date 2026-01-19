@@ -20,13 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
 function addMessage(text, sender, typing = false) {
     const chatBox = document.getElementById("chat-box");
     const msg = document.createElement("div");
-
     msg.className = sender;
     msg.innerText = text;
 
-    if (typing && sender === "bot") {
-        msg.classList.add("typing");
-    }
+    if (typing && sender === "bot") msg.classList.add("typing");
 
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -36,10 +33,8 @@ function addMessage(text, sender, typing = false) {
 async function send() {
     const input = document.getElementById("input");
     const msg = input.value.trim();
-
     if (!msg) return;
 
-    // If previous session ended, refresh completely
     if (sessionDone) {
         location.reload();
         return;
@@ -48,7 +43,6 @@ async function send() {
     addMessage("You: " + msg, "user");
     input.value = "";
 
-    // Show typing animation
     const typingMsg = addMessage("Agent is typing...", "bot", true);
 
     try {
@@ -57,30 +51,23 @@ async function send() {
             `?session_id=${session_id}&msg=${encodeURIComponent(msg)}`
         );
 
-        // 🔴 THIS LINE MUST EXIST
+        // ⭐ THIS LINE FIXES THE ERROR
         const data = await res.json();
 
-
-
-        // Remove typing animation
         typingMsg.remove();
 
         if (data.question) {
             addMessage("Agent: " + data.question, "bot");
-        } 
-        else if (data.prediction) {
+        } else if (data.prediction) {
             addMessage(
-                "Agent: " + data.prediction + " | Dropout Probability: " + data.dropout_probability,
+                "Agent: " + data.prediction +
+                " | Dropout Probability: " + data.dropout_probability,
                 "bot"
             );
             sessionDone = true;
-            addMessage(
-                "Session ended. Type anything to start a new chat.",
-                "bot"
-            );
-        } 
-        else {
-            addMessage("Agent: Unexpected response from server.", "bot");
+            addMessage("Session ended. Type anything for a new chat.", "bot");
+        } else {
+            addMessage("Agent: Unexpected response.", "bot");
         }
 
     } catch (error) {
